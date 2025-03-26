@@ -4,6 +4,4 @@ defmodule Servy do
   end
 end
 
-
-
-IO.puts Servy.hello("Elixir")
+IO.puts(Servy.hello("Elixir"))
