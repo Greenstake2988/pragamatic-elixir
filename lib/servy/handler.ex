@@ -85,7 +85,7 @@ request = """
 GET /wildthings HTTP/1.1
 Host: example.com
 User-Agent: ExampleBrowser/1.0
-Accept: */*
+Accept: */
 
 """
 
@@ -241,7 +241,7 @@ request = """
 POST /bears HTTP/1.1
 Host: example.com
 User-Agent: ExampleBrowser/1.0
-Accept: */*
+Accept: */
 Content-Type: application/x-www-form-urlencoded
 Content-Length: 21
 
