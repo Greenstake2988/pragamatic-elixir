@@ -2,9 +2,9 @@ defmodule Servy.Parser do
   alias Servy.Conv
 
   def parse(request) do
-    [top, params_string] = request |> String.split("\n\n", parts: 2)
+    [top, params_string] = request |> String.split("\r\n\r\n", parts: 2)
 
-    [request_line | header_lines] = top |> String.split("\n")
+    [request_line | header_lines] = top |> String.split("\r\n")
 
     [method, path, _] = request_line |> String.split(" ")
 
@@ -27,6 +27,17 @@ defmodule Servy.Parser do
     end)
   end
 
+  @doc """
+  Parses the given param string of the form `key1=value&key2=value2`
+  into a map with corresponding keys and values.
+
+  ## Examples
+      iex> params_string = "name=Baloo&type=Brown"
+      iex> Servy.Parser.parse_params("application/x-www-form-urlencoded", params_string)
+      %{"name" => "Baloo", "type" => "Brown"}
+      iex> Servy.Parser.parse_params("multipart/from-data", params_string)
+      %{}
+  """
   def parse_params("application/x-www-form-urlencoded", params_string) do
     params_string |> String.trim() |> URI.decode_query()
   end

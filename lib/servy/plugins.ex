@@ -19,7 +19,13 @@ defmodule Servy.Plugins do
 
   def rewrite_path_captures(%Conv{} = conv, nil), do: conv
 
-  def log(%Conv{} = conv), do: IO.inspect(conv)
+  def log(%Conv{} = conv) do
+    if Mix.env() == :dev do
+      IO.inspect(conv)
+    end
+
+    conv
+  end
 
   def emojify(%Conv{status: 200} = conv) do
     emojies = String.duplicate("🎉", 5)
@@ -31,9 +37,19 @@ defmodule Servy.Plugins do
   def emojify(%Conv{} = conv), do: conv
 
   def track(%Conv{status: 404, path: path} = conv) do
-    IO.puts("Warning: #{path} is on the loose")
+    if Mix.env() != :test do
+      IO.puts("Warning: #{path} is on the loose")
+    end
+
     conv
   end
 
   def track(%Conv{} = conv), do: conv
+
+  def put_resp_content_type(conv, type) do
+    new_headers = Map.put(conv.resp_headers, "Content-Type", type)
+    %{conv | resp_headers: new_headers}
+  end
+
+
 end
