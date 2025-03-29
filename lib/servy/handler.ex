@@ -22,8 +22,8 @@ defmodule Servy.Handler do
   end
 
   def put_content_length(%Conv{} = conv) do
-    new_length = Map.put(conv.resp_headers, "Content-Length", byte_size(conv.resp_body))
-    %{conv | resp_headers: new_length}
+    headers = Map.put(conv.resp_headers, "Content-Length", byte_size(conv.resp_body))
+    %{conv | resp_headers: headers}
   end
 
   def route(%Conv{method: "GET", path: "/about"} = conv) do
@@ -42,6 +42,10 @@ defmodule Servy.Handler do
 
   def route(%Conv{method: "GET", path: "/api/bears"} = conv) do
     Servy.Api.BearController.index(conv)
+  end
+
+  def route(%Conv{method: "POST", path: "/api/bears"} = conv) do
+    Servy.Api.BearController.create(conv, conv.params)
   end
 
   def route(%Conv{method: "GET", path: "/bears"} = conv) do
