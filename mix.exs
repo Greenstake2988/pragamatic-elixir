@@ -14,7 +14,7 @@ defmodule Servy.MixProject do
   # Run "mix help compile.app" to learn about applications.
   def application do
     [
-      extra_applications: [:logger]
+      extra_applications: [:logger, :observer, :wx, :eex]
     ]
   end
 
@@ -23,7 +23,8 @@ defmodule Servy.MixProject do
     [
       {:jason, "~> 1.4"},
       {:poison, "~> 6.0"},
-      {:earmark_parser, "~> 1.4"}
+      {:earmark_parser, "~> 1.4"},
+      {:httpoison, "~> 2.0"}
     ]
   end
 end
