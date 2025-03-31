@@ -27,33 +27,18 @@ defmodule Servy.Handler do
     %{conv | resp_headers: headers}
   end
 
-  def route(%Conv{method: "GET", path: "/snapshots"} = conv) do
-    # es el pid del proceso que ejecuta la accion algo asi
-    parent = self()
-    # como la instancia
+  def route(%Conv{method: "GET", path: "/sensors"} = conv) do
+    task = Task.async(Servy.Tracker, :get_location, ["bigfoot"])
 
-    spawn(fn -> send(parent, {:result, VideoCam.get_snapshot("cam-1")}) end)
-    spawn(fn -> send(parent, {:result, VideoCam.get_snapshot("cam-2")}) end)
-    spawn(fn -> send(parent, {:result, VideoCam.get_snapshot("cam-3")}) end)
+    snapshots =
+      ["cam-1", "cam-2", "cam-3"]
+      |> Enum.map(&Task.async(VideoCam, :get_snapshot, [&1]))
+      |> Enum.map(&Task.await/1)
 
-    snapshot1 =
-      receive do
-        {:result, filename} -> filename
-      end
+    IO.puts(inspect(snapshots))
+    where_is_bigfoot = Task.await(task)
 
-    snapshot2 =
-      receive do
-        {:result, filename} -> filename
-      end
-
-    snapshot3 =
-      receive do
-        {:result, filename} -> filename
-      end
-
-    snapshots = [snapshot1, snapshot2, snapshot3]
-
-    %{conv | status: 200, resp_body: inspect(snapshots)}
+    %{conv | status: 200, resp_body: inspect({snapshots, where_is_bigfoot})}
   end
 
   def route(%Conv{method: "GET", path: "/about"} = conv) do

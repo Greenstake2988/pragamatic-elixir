@@ -280,23 +280,16 @@ defmodule HandlerTest do
   test "get with HTTPosion " do
     spawn(HttpServer, :start, [4000])
 
-    parent = self()
+    url = "http://localhost:4000/wildthings"
 
-    max_concurrent_requests = 5
+    1..5
+    |> Enum.map(fn _ -> Task.async(HTTPoison, :get, [url]) end)
+    |> Enum.map(&Task.await/1)
+    |> Enum.map(&assert_successful_response/1)
+  end
 
-    for _ <- 1..max_concurrent_requests do
-      spawn(fn ->
-        {:ok, response} = HTTPoison.get("localhost:4000/wildthings")
-        send(parent, {:ok, response})
-      end)
-    end
-
-    for _ <- 1..max_concurrent_requests do
-      receive do
-        {:ok, response} ->
-          assert response.status_code == 200
-          assert response.body == "Bears, Lions, Tigers"
-      end
-    end
+  defp assert_successful_response({:ok, response}) do
+    assert response.status_code == 200
+    assert response.body == "Bears, Lions, Tigers"
   end
 end
